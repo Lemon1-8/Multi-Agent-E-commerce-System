@@ -1,8 +1,8 @@
 {
   "name": "Multi-Agent E-commerce System",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Multi-Agent E-commerce System - AI Agent collaboration for cross-border e-commerce",
+  "author": "Dev Team",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
