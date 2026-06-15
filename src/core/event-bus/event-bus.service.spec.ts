@@ -29,4 +29,16 @@ describe('EventBusService', () => {
     service.on(AgentEventType.PRODUCT_CREATED, handler);
     service.emit(AgentEventType.PRODUCT_CREATED, {});
   });
+
+  it('broadcast应该通知所有指定handlers', async () => {
+    const results: string[] = [];
+    const h1 = (e: any) => { results.push('h1:' + e.payload.data); };
+    const h2 = (e: any) => { results.push('h2:' + e.payload.data); };
+
+    await service.broadcast(AgentEventType.REPORT_GENERATED, { data: 'test' }, [h1, h2]);
+
+    expect(results).toContain('h1:test');
+    expect(results).toContain('h2:test');
+    expect(results).toHaveLength(2);
+  });
 });

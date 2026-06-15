@@ -26,21 +26,27 @@ export class EventBusService {
     this.eventEmitter.on(type, (event: AgentEvent) => handler(event));
   }
 
-  broadcast(type: AgentEventType, payload: unknown, handlers: EventHandler[], source = 'system'): void {
+  async broadcast(
+    type: AgentEventType,
+    payload: unknown,
+    handlers: EventHandler[],
+    source = 'system',
+    correlationId?: string,
+  ): Promise<void> {
     const event: AgentEvent = {
       id: crypto.randomUUID(),
       type,
       source,
       timestamp: new Date(),
       payload,
+      correlationId,
     };
     for (const handler of handlers) {
       try {
-        handler(event);
+        await handler(event);
       } catch (error) {
-        this.logger.error(`事件处理器失败: ${(error as Error).message}`);
+        this.logger.error(`事件处理器失败: ${(error as Error).message}`, (error as Error).stack);
       }
     }
-    this.eventEmitter.emit(type, event);
   }
 }
