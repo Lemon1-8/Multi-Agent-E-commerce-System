@@ -20,7 +20,6 @@ export abstract class BaseAgent implements IAgent {
 
   async handleTask(task: AgentTask): Promise<AgentResult> {
     this.status = AgentStatus.BUSY;
-    const steps: TaskStep[] = [];
 
     try {
       this.addStep(task.id, 'start', TaskStatus.COMPLETED, `Agent ${this.name} 开始处理`);
