@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ITool, ToolDefinition } from '../../../common/interfaces';
 
 export interface ReportSection {
   title: string;
@@ -6,8 +7,21 @@ export interface ReportSection {
 }
 
 @Injectable()
-export class ReportGeneratorTool {
+export class ReportGeneratorTool implements ITool {
   private readonly logger = new Logger(ReportGeneratorTool.name);
+
+  readonly definition: ToolDefinition = {
+    name: 'generate_report',
+    description: '生成格式化的选品分析报告',
+    parameters: [
+      { name: 'title', type: 'string', description: '报告标题', required: true },
+      { name: 'sections', type: 'array', description: '报告章节列表，每项包含 title 和 content', required: true },
+    ],
+  };
+
+  async execute(params: Record<string, unknown>): Promise<unknown> {
+    return this.generate(params.title as string, params.sections as ReportSection[]);
+  }
 
   generate(title: string, sections: ReportSection[]): string {
     this.logger.log(`生成报告: ${title}`);

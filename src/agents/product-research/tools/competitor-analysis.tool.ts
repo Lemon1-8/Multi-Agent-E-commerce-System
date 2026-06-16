@@ -1,11 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EmbeddingService } from '../../../infrastructure/embedding/embedding.service';
+import { ITool, ToolDefinition } from '../../../common/interfaces';
 
 @Injectable()
-export class CompetitorAnalysisTool {
+export class CompetitorAnalysisTool implements ITool {
   private readonly logger = new Logger(CompetitorAnalysisTool.name);
 
+  readonly definition: ToolDefinition = {
+    name: 'competitor_analysis',
+    description: '分析竞品数据，对比价格、评分和市场份额',
+    parameters: [
+      { name: 'category', type: 'string', description: '品类名称', required: true },
+      { name: 'keywords', type: 'array', description: '搜索关键词列表', required: true },
+    ],
+  };
+
   constructor(private readonly embedding: EmbeddingService) {}
+
+  async execute(params: Record<string, unknown>): Promise<string> {
+    return this.analyze(params.category as string, params.keywords as string[]);
+  }
 
   async analyze(category: string, keywords: string[]): Promise<string> {
     this.logger.log(`竞品分析: category=${category}, keywords=${keywords.join(',')}`);

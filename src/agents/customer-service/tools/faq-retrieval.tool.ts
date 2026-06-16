@@ -1,11 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EmbeddingService } from '../../../infrastructure/embedding/embedding.service';
+import { ITool, ToolDefinition } from '../../../common/interfaces';
 
 @Injectable()
-export class FaqRetrievalTool {
+export class FaqRetrievalTool implements ITool {
   private readonly logger = new Logger(FaqRetrievalTool.name);
 
+  readonly definition: ToolDefinition = {
+    name: 'faq_search',
+    description: '在FAQ知识库中检索与用户问题最匹配的答案',
+    parameters: [
+      { name: 'question', type: 'string', description: '用户问题', required: true },
+      { name: 'locale', type: 'string', description: '语言代码，默认 zh-CN', required: false },
+    ],
+  };
+
   constructor(private readonly embedding: EmbeddingService) {}
+
+  async execute(params: Record<string, unknown>): Promise<unknown> {
+    return this.search(params.question as string, (params.locale as string) ?? 'zh-CN');
+  }
 
   async search(question: string, locale = 'zh-CN'): Promise<string> {
     const results = await this.embedding.search({

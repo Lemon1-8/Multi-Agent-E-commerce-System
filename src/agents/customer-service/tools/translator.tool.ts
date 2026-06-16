@@ -1,11 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LlmService } from '../../../infrastructure/llm/llm.service';
+import { ITool, ToolDefinition } from '../../../common/interfaces';
 
 @Injectable()
-export class TranslatorTool {
+export class TranslatorTool implements ITool {
   private readonly logger = new Logger(TranslatorTool.name);
 
+  readonly definition: ToolDefinition = {
+    name: 'translate',
+    description: '将文本翻译到目标语言，支持多语种',
+    parameters: [
+      { name: 'text', type: 'string', description: '待翻译文本', required: true },
+      { name: 'targetLocale', type: 'string', description: '目标语言代码，如 en, es, fr, de, ja, ko', required: true },
+    ],
+  };
+
   constructor(private readonly llm: LlmService) {}
+
+  async execute(params: Record<string, unknown>): Promise<unknown> {
+    return this.translate(params.text as string, params.targetLocale as string);
+  }
 
   async translate(text: string, targetLocale: string): Promise<string> {
     if (targetLocale === 'zh-CN') return text;
