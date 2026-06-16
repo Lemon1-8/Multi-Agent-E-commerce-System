@@ -62,13 +62,14 @@ export class LlmService {
     const { temperature = 0.7, maxTokens = 2000, jsonMode = false } = options;
     const apiKey = this.config.get('LLM_API_KEY');
     const model = this.config.get('LLM_MODEL', 'gpt-4o-mini');
+    const apiUrl = this.config.get('LLM_API_URL', 'https://api.openai.com');
 
     const cacheKey = `llm:${model}:${JSON.stringify(messages)}:${temperature}`;
     const cached = await this.cache.get<string>(cacheKey);
     if (cached) return cached;
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch(`${apiUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens,
@@ -97,11 +98,12 @@ export class LlmService {
     const { temperature = 0.7, maxTokens = 2000 } = options ?? {};
     const apiKey = this.config.get('LLM_API_KEY');
     const model = this.config.get('LLM_MODEL', 'gpt-4o-mini');
+    const apiUrl = this.config.get('LLM_API_URL', 'https://api.openai.com');
 
     const llmTools = tools.map((td) => this.toolDefToLlmTool(td));
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch(`${apiUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
