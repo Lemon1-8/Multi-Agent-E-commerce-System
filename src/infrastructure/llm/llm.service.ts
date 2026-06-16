@@ -1,10 +1,46 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../cache/cache.service';
+import { ToolDefinition } from '../../common/interfaces/task.interface';
 
 export interface LlmMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string | null;
+  tool_calls?: LlmToolCall[];
+  tool_call_id?: string;
+}
+
+export interface LlmToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
+export interface LlmToolDefinition {
+  type: 'function';
+  function: {
+    name: string;
+    description: string;
+    parameters: {
+      type: 'object';
+      properties: Record<string, { type: string; description?: string; enum?: string[] }>;
+      required?: string[];
+    };
+  };
+}
+
+export interface ToolCall {
+  id: string;
+  name: string;
+  arguments: Record<string, unknown>;
+}
+
+export interface LlmResponse {
+  content: string | null;
+  toolCalls: ToolCall[];
 }
 
 export interface LlmCompletionOptions {
@@ -51,5 +87,88 @@ export class LlmService {
       this.logger.error(`LLM 调用失败: ${(error as Error).message}`);
       throw error;
     }
+  }
+
+  async completeWithTools(
+    messages: LlmMessage[],
+    tools: ToolDefinition[],
+    options?: LlmCompletionOptions,
+  ): Promise<LlmResponse> {
+    const { temperature = 0.7, maxTokens = 2000 } = options ?? {};
+    const apiKey = this.config.get('LLM_API_KEY');
+    const model = this.config.get('LLM_MODEL', 'gpt-4o-mini');
+
+    const llmTools = tools.map((td) => this.toolDefToLlmTool(td));
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature,
+          max_tokens: maxTokens,
+          tools: llmTools,
+          tool_choice: 'auto',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`LLM API 错误: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const choice = data.choices[0];
+      const message = choice.message;
+
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        const toolCalls: ToolCall[] = message.tool_calls.map((tc: {
+          id: string;
+          function: { name: string; arguments: string };
+        }) => ({
+          id: tc.id,
+          name: tc.function.name,
+          arguments: JSON.parse(tc.function.arguments),
+        }));
+        return { content: null, toolCalls };
+      }
+
+      return { content: message.content ?? null, toolCalls: [] };
+    } catch (error) {
+      this.logger.error(`LLM (tools) 调用失败: ${(error as Error).message}`);
+      throw error;
+    }
+  }
+
+  private toolDefToLlmTool(td: ToolDefinition): LlmToolDefinition {
+    const properties: Record<string, { type: string; description?: string; enum?: string[] }> = {};
+    const required: string[] = [];
+    for (const p of td.parameters) {
+      properties[p.name] = {
+        type:
+          p.type === 'object'
+            ? 'object'
+            : p.type === 'array'
+              ? 'array'
+              : p.type === 'number'
+                ? 'number'
+                : 'string',
+        description: p.description,
+      };
+      if (p.required) required.push(p.name);
+    }
+    return {
+      type: 'function',
+      function: {
+        name: td.name,
+        description: td.description,
+        parameters: {
+          type: 'object',
+          properties,
+          ...(required.length > 0 ? { required } : {}),
+        },
+      },
+    };
   }
 }
