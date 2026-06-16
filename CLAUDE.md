@@ -6,111 +6,82 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # 基础设施
-docker compose up -d                                              # 启动 PostgreSQL (pgvector) + Redis
-docker start embedding_rerank_models-tei-embedding-1              # 启动本地 BGE-M3 Embedding 服务 (端口 8888)
+docker compose up -d && docker start embedding_rerank_models-tei-embedding-1  # 启动全部服务
 
-# 后端 (NestJS)
-npm run start:dev                                                 # 开发模式 (watch 热重载)
-npm run build                                                     # 编译
+# 后端
+npm run start:dev                                                 # NestJS 开发模式 (watch)
 npm run start:prod                                                # 生产模式
 npm run lint                                                      # ESLint
 
 # 测试
 npm test                                                          # 全部测试
-npx jest <path-to-file>                                           # 单个测试文件
-npx jest --testPathPattern=<name>                                 # 按名称过滤测试
+npx jest <path-to-file>                                           # 单个文件
+npx jest --testPathPattern=<name>                                 # 按名称过滤
 
-# 前端
-cd frontend && npm run dev                                        # Vite 开发服务器 (端口 5173)
-cd frontend && npm run build                                      # 生产构建
+# 前端 (另开终端)
+cd frontend && npm run dev                                        # Vite (5173)
+
+# 数据播种
+npm run seed                                                      # 灌入 540+ 行种子数据 (需先启动 Docker)
 ```
 
 ## 技术栈
 
-- **后端**: NestJS 11 + TypeScript 5
-- **数据库**: PostgreSQL 16 + pgvector (向量检索)
-- **缓存/队列**: Redis 7
-- **AI**: DeepSeek v4 Flash (LLM) + 本地 BGE-M3 via TEI (Embedding, 1024维)
-- **前端**: React + Vite + socket.io-client
-- **包管理**: npm
+NestJS 11 + TypeScript 5 · PostgreSQL 16 + pgvector (向量检索) · Redis 7 · DeepSeek v4 Flash (LLM) · 本地 BGE-M3 via TEI (Embedding, 1024维) · React + Vite + socket.io-client · npm
 
-## 架构总览
+## 核心架构
 
 ```
-用户交互层:  React 前端 (Web 管理面板 + 对话聊天)
-                │ REST / WebSocket
-API 网关层:  DashboardController  AgentController  AgentGateway(WS)
-                │
-Agent 核心层:  Orchestrator (任务编排)  ←→  EventBus (事件总线)
-                ├── ProductResearchAgent (选品分析)
-                ├── OrderManagementAgent (订单处理)
-                └── CustomerServiceAgent (客服)
-                │
-基础设施层:  PostgreSQL+pgvector  Redis  LlmService  EmbeddingService
+用户输入 (聊天 / REST) → IntentParser → Orchestrator → Agent.handleTask()
+                                                           │
+                                          BaseAgent (模板方法: 状态机 + 错误兜底)
+                                              │
+                                          ReActLoopService.run()
+                                              │
+                                          LLM (completeWithTools) 选工具
+                                              │
+                                          工具执行 → 观察结果 → 再推理 → 输出
 ```
 
-### 核心概念
+### 关键类与职责
 
-- **Agent**: 继承 `BaseAgent` 抽象类，实现 `executeTask()`、`handleEvent()`、`getTools()`
-- **Tool**: 每个 Agent 的独立工具类，封装具体能力（如 `TrendQueryTool`、`TranslatorTool`）
-- **Orchestrator**: 管理 Agent 注册与任务路由（按 `TaskType` 或显式指定目标 Agent）
-- **EventBus**: 基于 `@nestjs/event-emitter`，Agent 间松耦合通信（`TASK_ASSIGNED`、`REPORT_GENERATED`、`PRODUCT_CREATED` 等事件）
-- **EmbeddingService**: 优先使用本地 TEI 端点 (`EMBEDDING_API_URL`)，否则回退 OpenAI API；支持 `embed()`、`embedBatch()`、`search()`（pgvector 余弦相似度）
+| 类 | 文件 | 职责 |
+|-----|------|------|
+| `BaseAgent` | `core/agent-base/base-agent.ts` | 模板方法：状态机 + `executeTask()` 调用 ReAct 循环。子类只需声明 `systemPrompt` + `tools[]` |
+| `ReActLoopService` | `core/agent-base/react-loop.service.ts` | LLM 推理循环：发消息 → LLM 选工具 → 执行 → 观察结果 → 循环直到输出最终答案（最大10轮） |
+| `Orchestrator` | `core/orchestrator/orchestrator.service.ts` | Agent 注册 + 任务路由（按 `TaskType` 或显式指定目标 Agent） |
+| `EventBusService` | `core/event-bus/event-bus.service.ts` | Agent 间松耦合事件通信 (@Global)，`emit()` / `on()` / `broadcast()` |
+| `LlmService` | `infrastructure/llm/llm.service.ts` | `complete()` (纯文本) + `completeWithTools()` (function calling)，通过 `LLM_API_URL` 配置端点 |
+| `EmbeddingService` | `infrastructure/embedding/embedding.service.ts` | `embed()`(→1024维向量) + `search()`(pgvector 余弦相似度) |
+| `ITool` | `common/interfaces/tool.interface.ts` | `{ definition: ToolDefinition; execute(params): Promise<unknown> }` — 所有工具的标准化接口 |
 
-### 目录结构要点
+### Agent 模式
+
+三个 Agent 不再包含硬编码业务逻辑，只声明身份和工具清单，由 LLM 自主决定工具调用顺序：
 
 ```
-src/
-├── common/interfaces/     # IAgent, AgentTask, AgentEvent, TaskType 等核心类型
-├── core/
-│   ├── agent-base/        # BaseAgent 抽象类 (所有 Agent 的基类)
-│   ├── event-bus/         # EventBusService + EventBusModule (@Global)
-│   └── orchestrator/      # OrchestratorService (@Global) — Agent 注册 + 任务路由
-├── agents/
-│   ├── product-research/  # 选品 Agent (趋势查询/竞品分析/评分/报告生成)
-│   ├── order-management/  # 订单 Agent (商品CRUD/订单状态机/库存预警)
-│   └── customer-service/  # 客服 Agent (翻译/FAQ检索/情感分析/话术模板)
-├── infrastructure/
-│   ├── database/          # TypeORM 实体 + pgvector 向量实体
-│   ├── embedding/         # EmbeddingService (TEI/OpenAI)
-│   ├── llm/               # LlmService (DeepSeek/OpenAI, 支持缓存)
-│   ├── cache/             # CacheService (Redis)
-│   └── external-apis/     # 平台适配器接口 + Mock 实现
-├── api/
-│   ├── rest/              # DashboardController, AgentController
-│   └── websocket/         # AgentGateway (实时 Agent 事件推送)
-└── chat/
-    ├── intent-parser/     # 关键词匹配 → TaskType 识别
-    └── conversation/      # 对话历史 CRUD
+ProductResearchAgent: systemPrompt + [trendQuery, competitorAnalysis, scoring, reportGenerator]
+OrderManagementAgent: systemPrompt + [productCrud, orderWorkflow, inventoryAlert, anomalyDetection]
+CustomerServiceAgent: systemPrompt + [translator, faqSearch, sentimentAnalysis, templateManager]
 ```
 
-### 如何新增一个 Agent
+### 如何新增 Agent
 
-1. 在 `src/agents/<name>/tools/` 下创建工具类（独立注入式 Service）
-2. 创建 `<name>.agent.ts` 继承 `BaseAgent`，实现 `executeTask()` 和 `getTools()`
-3. 创建 `<name>.module.ts`，导入 `EventBusModule` 和所需基础设施模块
+1. 在 `src/agents/<name>/tools/` 下创建工具类，实现 `ITool` 接口（含 `definition` + `execute()`）
+2. 创建 `<name>.agent.ts` 继承 `BaseAgent`，声明 `systemPrompt` + 构造注入工具并赋给 `this.tools`
+3. 创建 `<name>.module.ts`，providers 包含 `ReActLoopService` 和所有工具
 4. 在 `AppModule` 中导入新模块
-5. 在 `main.ts` 中注入并注册 Agent: `orchestrator.registerAgent(agent, TaskType.XXX)`
-
-### APP Controller / Service
-
-`app.controller.ts` 和 `app.service.ts` 是 NestJS 脚手架残留文件，未被任何业务模块使用，可安全删除。
-
-## Superpowers 技能系统
-
-本项目使用 Superpowers 技能系统进行开发。在任何开发任务开始前，必须先调用 `using-superpowers` skill。如果认为某个 skill 可能适用（即使只有 1% 的可能性），必须调用它。
-
-Skills 位于 `.claude/skills/` 目录，包含：`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`test-driven-development`、`systematic-debugging`、`requesting-code-review`、`receiving-code-review`、`verification-before-completion`、`finishing-a-development-branch`、`using-git-worktrees`。
+5. 在 `main.ts` 中注册：`orchestrator.registerAgent(agent, TaskType.XXX)`
 
 ## 环境配置
-
-配置通过 `.env` 文件管理（由 `.env.example` 模板创建）：
 
 | 变量 | 用途 |
 |------|------|
 | `DB_HOST/PORT/USER/PASSWORD/NAME` | PostgreSQL 连接 |
 | `REDIS_HOST/PORT` | Redis 连接 |
-| `LLM_API_KEY/MODEL` | LLM 配置 (DeepSeek API) |
-| `EMBEDDING_API_URL` | 设为 `http://localhost:8888` 使用本地 BGE-M3；留空则用 OpenAI |
-| `EMBEDDING_MODEL` | `bge-m3` (本地) 或 `text-embedding-3-small` (OpenAI) |
-| `EMBEDDING_DIMENSION` | 1024 (BGE-M3) 或 1536 (OpenAI) |
+| `LLM_API_KEY` | API Key |
+| `LLM_API_URL` | API 端点 (如 `https://api.deepseek.com`) |
+| `LLM_MODEL` | 模型名 (如 `deepseek-v4-flash`) |
+| `EMBEDDING_API_URL` | TEI 端点 (`http://localhost:8888`)，留空则用 OpenAI |
+| `EMBEDDING_MODEL` | `bge-m3` (1024维) 或 `text-embedding-3-small` (1536维) |
+| `EMBEDDING_DIMENSION` | 向量维度 (1024 或 1536) |
