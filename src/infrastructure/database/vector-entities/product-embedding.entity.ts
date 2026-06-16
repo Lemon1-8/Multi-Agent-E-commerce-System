@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  Index,
 } from 'typeorm';
 
 @Entity('product_embeddings')
@@ -14,9 +13,7 @@ export class ProductEmbedding {
   @Column()
   productId: string;
 
-  // pgvector column type - recognized at runtime with pgvector package
   @Column({ type: 'vector', length: 1024 } as any)
-  @Index({ spatial: true } as any)
   embedding: number[];
 
   @Column('text')

@@ -7,9 +7,10 @@ import { InventoryAlertTool } from './tools/inventory-alert.tool';
 import { AnomalyDetectionTool } from './tools/anomaly-detection.tool';
 import { Product } from '../../infrastructure/database/entities/product.entity';
 import { Order } from '../../infrastructure/database/entities/order.entity';
+import { Customer } from '../../infrastructure/database/entities/customer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Order])],
+  imports: [TypeOrmModule.forFeature([Product, Order, Customer])],
   providers: [OrderManagementAgent, ProductCrudTool, OrderWorkflowTool, InventoryAlertTool, AnomalyDetectionTool],
   exports: [OrderManagementAgent],
 })
