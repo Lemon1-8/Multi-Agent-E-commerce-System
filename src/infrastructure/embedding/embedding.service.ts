@@ -36,25 +36,34 @@ export class EmbeddingService {
   ) {}
 
   async embed(text: string): Promise<number[]> {
-    const apiKey = this.config.get('LLM_API_KEY');
-    const model = this.config.get('EMBEDDING_MODEL', 'text-embedding-3-small');
+    const apiUrl = this.config.get('EMBEDDING_API_URL', '');
+    const model = this.config.get('EMBEDDING_MODEL', 'bge-m3');
+    const dimension = this.config.get<number>('EMBEDDING_DIMENSION', 1024);
+    const apiKey = this.config.get('LLM_API_KEY', '');
+
+    // 优先使用本地 TEI 服务，否则用 OpenAI
+    const baseUrl = apiUrl || 'https://api.openai.com';
+    const isOpenAI = !apiUrl;
 
     try {
-      const response = await fetch('https://api.openai.com/v1/embeddings', {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (isOpenAI) headers['Authorization'] = `Bearer ${apiKey}`;
+
+      const response = await fetch(`${baseUrl}/v1/embeddings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        headers,
         body: JSON.stringify({ model, input: text }),
       });
 
       if (!response.ok) {
-        throw new Error(`Embedding API 错误: ${response.statusText}`);
+        throw new Error(`Embedding API 错误: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       return data.data[0].embedding;
     } catch (error) {
       this.logger.warn(`Embedding API 调用失败，使用零向量占位: ${(error as Error).message}`);
-      return new Array(1536).fill(0);
+      return new Array(dimension).fill(0);
     }
   }
 

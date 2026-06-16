@@ -18,7 +18,7 @@ export class FaqEmbedding {
   answer: string;
 
   // pgvector column type - recognized at runtime with pgvector package
-  @Column({ type: 'vector', length: 1536 } as any)
+  @Column({ type: 'vector', length: 1024 } as any)
   @Index({ spatial: true } as any)
   embedding: number[];
 
