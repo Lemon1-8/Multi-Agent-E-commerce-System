@@ -3,15 +3,19 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { OrchestratorService } from './orchestrator.service';
 import { EventBusService } from '../event-bus/event-bus.service';
 import { BaseAgent } from '../agent-base/base-agent';
+import { ReActLoopService } from '../agent-base/react-loop.service';
 import {
   AgentEvent, AgentResult, AgentStatus, AgentTask,
   TaskStatus, TaskType, AgentEventType, ToolDefinition,
 } from '../../common/interfaces';
 
+const mockReActLoop = { run: jest.fn().mockResolvedValue({ result: 'test' }) } as unknown as ReActLoopService;
+
 class TestResearchAgent extends BaseAgent {
   id = 'research-1';
   name = '选品Agent';
   description = '负责选品分析';
+  systemPrompt = 'test';
 
   getTools(): ToolDefinition[] { return []; }
   async executeTask(task: AgentTask): Promise<Record<string, unknown>> {
@@ -24,6 +28,7 @@ class TestOrderAgent extends BaseAgent {
   id = 'order-1';
   name = '订单Agent';
   description = '负责订单处理';
+  systemPrompt = 'test';
 
   getTools(): ToolDefinition[] { return []; }
   async executeTask(task: AgentTask): Promise<Record<string, unknown>> {
@@ -49,7 +54,7 @@ describe('Framework Integration', () => {
   });
 
   it('完整的 Agent 注册 → 任务路由 → 结果返回流程', async () => {
-    const researchAgent = new TestResearchAgent();
+    const researchAgent = new TestResearchAgent(mockReActLoop);
     orchestrator.registerAgent(researchAgent, TaskType.PRODUCT_RESEARCH);
 
     const task: AgentTask = {
@@ -65,7 +70,7 @@ describe('Framework Integration', () => {
   });
 
   it('事件广播通知所有 Agent', async () => {
-    const orderAgent = new TestOrderAgent();
+    const orderAgent = new TestOrderAgent(mockReActLoop);
     orchestrator.registerAgent(orderAgent);
 
     const handleEventSpy = jest.spyOn(orderAgent, 'handleEvent');

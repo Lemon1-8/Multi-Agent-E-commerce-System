@@ -3,6 +3,8 @@ import {
   IAgent, AgentStatus, AgentTask, AgentResult, AgentEvent,
   AgentEventType, TaskStatus, TaskStep, ToolDefinition,
 } from '../../common/interfaces';
+import { ITool } from '../../common/interfaces/tool.interface';
+import { ReActLoopService } from './react-loop.service';
 
 @Injectable()
 export abstract class BaseAgent implements IAgent {
@@ -13,9 +15,13 @@ export abstract class BaseAgent implements IAgent {
   abstract readonly id: string;
   abstract readonly name: string;
   abstract readonly description: string;
+  abstract readonly systemPrompt: string;
+
+  protected tools: ITool[] = [];
+
+  constructor(protected readonly reactLoop: ReActLoopService) {}
 
   abstract getTools(): ToolDefinition[];
-  abstract executeTask(task: AgentTask): Promise<Record<string, unknown>>;
   abstract handleEvent(event: AgentEvent): Promise<void>;
 
   async handleTask(task: AgentTask): Promise<AgentResult> {
@@ -45,6 +51,16 @@ export abstract class BaseAgent implements IAgent {
   }
 
   getStatus(): AgentStatus { return this.status; }
+
+  protected async executeTask(task: AgentTask): Promise<Record<string, unknown>> {
+    return this.reactLoop.run({
+      systemPrompt: this.systemPrompt,
+      task,
+      tools: this.tools,
+      onStep: (name, status, detail) => this.addStep(task.id, name, status, detail),
+      maxIterations: 10,
+    });
+  }
 
   protected addStep(taskId: string, name: string, status: TaskStatus, detail: string): void {
     const steps = this.taskSteps.get(taskId) ?? [];

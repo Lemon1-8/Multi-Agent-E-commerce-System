@@ -5,10 +5,11 @@ import { CompetitorAnalysisTool } from './tools/competitor-analysis.tool';
 import { ScoringTool } from './tools/scoring.tool';
 import { ReportGeneratorTool } from './tools/report-generator.tool';
 import { EmbeddingModule } from '../../infrastructure/embedding/embedding.module';
+import { ReActLoopService } from '../../core/agent-base/react-loop.service';
 
 @Module({
   imports: [EmbeddingModule],
-  providers: [ProductResearchAgent, TrendQueryTool, CompetitorAnalysisTool, ScoringTool, ReportGeneratorTool],
+  providers: [ProductResearchAgent, TrendQueryTool, CompetitorAnalysisTool, ScoringTool, ReportGeneratorTool, ReActLoopService],
   exports: [ProductResearchAgent],
 })
 export class ProductResearchModule {}

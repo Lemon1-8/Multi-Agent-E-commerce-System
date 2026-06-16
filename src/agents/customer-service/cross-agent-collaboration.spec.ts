@@ -3,10 +3,14 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { OrchestratorService } from '../../core/orchestrator/orchestrator.service';
 import { EventBusService } from '../../core/event-bus/event-bus.service';
 import { BaseAgent } from '../../core/agent-base/base-agent';
+import { ReActLoopService } from '../../core/agent-base/react-loop.service';
 import { AgentTask, AgentEvent, TaskStatus, TaskType, AgentEventType, ToolDefinition } from '../../common/interfaces';
+
+const mockReActLoop = { run: jest.fn().mockResolvedValue({ result: 'test' }) } as unknown as ReActLoopService;
 
 class TestResearchAgent extends BaseAgent {
   id = 'research-1'; name = '选品Agent'; description = '选品';
+  systemPrompt = 'test';
   getTools(): ToolDefinition[] { return []; }
   async executeTask(task: AgentTask): Promise<Record<string, unknown>> {
     return { report: '分析结果' };
@@ -16,6 +20,7 @@ class TestResearchAgent extends BaseAgent {
 
 class TestOrderAgent extends BaseAgent {
   id = 'order-1'; name = '订单Agent'; description = '订单';
+  systemPrompt = 'test';
   receivedEvents: AgentEvent[] = [];
   getTools(): ToolDefinition[] { return []; }
   async executeTask(task: AgentTask): Promise<Record<string, unknown>> {
@@ -31,6 +36,7 @@ class TestOrderAgent extends BaseAgent {
 
 class TestServiceAgent extends BaseAgent {
   id = 'service-1'; name = '客服Agent'; description = '客服';
+  systemPrompt = 'test';
   receivedEvents: AgentEvent[] = [];
   getTools(): ToolDefinition[] { return []; }
   async executeTask(): Promise<Record<string, unknown>> {
@@ -53,9 +59,9 @@ describe('Cross-Agent Collaboration', () => {
   });
 
   it('选品→订单→客服 事件联动流程', async () => {
-    const researchAgent = new TestResearchAgent();
-    const orderAgent = new TestOrderAgent();
-    const serviceAgent = new TestServiceAgent();
+    const researchAgent = new TestResearchAgent(mockReActLoop);
+    const orderAgent = new TestOrderAgent(mockReActLoop);
+    const serviceAgent = new TestServiceAgent(mockReActLoop);
 
     orchestrator.registerAgent(researchAgent, TaskType.PRODUCT_RESEARCH);
     orchestrator.registerAgent(orderAgent, TaskType.ORDER_MANAGEMENT);
