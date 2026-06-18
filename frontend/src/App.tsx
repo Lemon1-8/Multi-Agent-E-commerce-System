@@ -4,7 +4,7 @@ import { ChatPanel } from './components/ChatPanel';
 import { useWebSocket } from './hooks/useWebSocket';
 
 export default function App() {
-  const { events, sendMessage, connected } = useWebSocket();
+  const { events, sendMessage, connected, lastResponse } = useWebSocket();
   const [agents, setAgents] = useState<any[]>([]);
 
   useEffect(() => {
@@ -19,12 +19,12 @@ export default function App() {
       <div style={{ flex: 1, padding: 24, overflow: 'auto', background: '#f5f5f5' }}>
         <h1 style={{ margin: '0 0 16px 0', fontSize: 22 }}>Multi-Agent 跨境电商系统</h1>
         <div style={{ marginBottom: 12, color: connected ? '#22c55e' : '#ef4444', fontSize: 13 }}>
-          {connected ? '🟢 已连接' : '🔴 未连接'}
+          {connected ? '已连接' : '未连接'}
         </div>
         <Dashboard agents={agents} events={events} />
       </div>
       <div style={{ width: 420, borderLeft: '1px solid #e0e0e0', background: '#fff' }}>
-        <ChatPanel onSend={sendMessage} events={events} />
+        <ChatPanel onSend={sendMessage} lastResponse={lastResponse} />
       </div>
     </div>
   );

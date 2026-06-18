@@ -2,38 +2,76 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface Props {
   onSend: (text: string) => void;
-  events: any[];
+  lastResponse: any;
 }
 
-export function ChatPanel({ onSend, events }: Props) {
+export function ChatPanel({ onSend, lastResponse }: Props) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Array<{ role: string; content: string; ts: string }>>([]);
+  const processingRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  useEffect(() => {
+    if (!lastResponse) return;
+
+    if (lastResponse.type === 'task_result') {
+      const output = lastResponse.output;
+      let content = '';
+      if (output?.report) {
+        content = output.report;
+      } else if (output?.result) {
+        content = output.result;
+      } else if (output?.reply) {
+        content = output.reply;
+      } else if (output?.alert !== undefined) {
+        content = output.message;
+      } else if (output?.message) {
+        content = output.message;
+      } else {
+        content = JSON.stringify(output, null, 2);
+      }
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        if (processingRef.current && updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
+          updated[updated.length - 1] = { role: 'assistant', content, ts: new Date().toISOString() };
+        } else {
+          updated.push({ role: 'assistant', content, ts: new Date().toISOString() });
+        }
+        return updated;
+      });
+      processingRef.current = false;
+    } else if (lastResponse.type === 'task_error') {
+      setMessages((prev) => [...prev, { role: 'assistant', content: `错误: ${lastResponse.error}`, ts: new Date().toISOString() }]);
+      processingRef.current = false;
+    }
+  }, [lastResponse]);
 
   const handleSend = () => {
     if (!input.trim()) return;
     setMessages((prev) => [...prev, { role: 'user', content: input, ts: new Date().toISOString() }]);
     onSend(input);
     setInput('');
+    processingRef.current = true;
     setTimeout(() => {
-      setMessages((prev) => [...prev, { role: 'assistant', content: '正在处理您的请求...', ts: new Date().toISOString() }]);
-    }, 500);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Agent 正在思考...', ts: new Date().toISOString() }]);
+    }, 300);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: '12px 16px', borderBottom: '1px solid #e0e0e0', fontWeight: 600, fontSize: 14 }}>
-        💬 与 Agent 团队对话
+        与 Agent 团队对话
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
         {messages.map((msg, i) => (
           <div key={i} style={{
             marginBottom: 8, padding: 8, borderRadius: 8, maxWidth: '85%',
-            background: msg.role === 'user' ? '#eff6ff' : '#f3f4f6',
+            background: msg.role === 'user' ? '#eff6ff' : msg.content.startsWith('错误') ? '#fef2f2' : '#f3f4f6',
             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-            fontSize: 13, lineHeight: 1.5,
+            fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap',
           }}>
             <div style={{ fontWeight: 600, fontSize: 10, color: '#666', marginBottom: 2 }}>
               {msg.role === 'user' ? '你' : 'Agent'}
