@@ -56,6 +56,12 @@ cd frontend && npm install && npm run dev  # Vite 开发服务器 (端口 5173)
 | **OrderManagementAgent** | `productCrud`, `orderWorkflow`, `inventoryAlert`, `anomalyDetection` |
 | **CustomerServiceAgent** | `translator`, `faqSearch`, `sentimentAnalysis`, `templateManager` |
 
+## 架构图
+
+![多智能体跨境电商系统架构图](docs/architecture.svg)
+
+图中展示了从 React/Vite 客户端、REST/Socket.IO 接入，到意图解析器、任务编排器和三类领域智能体的主链路，以及智能体访问大模型、向量嵌入、PostgreSQL/pgvector 与 Redis 的关系。可编辑的图稿保存在 [`docs/architecture.html`](docs/architecture.html)。
+
 ## 环境配置
 
 | 变量 | 用途 |

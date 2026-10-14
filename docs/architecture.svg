@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title architecture-desc" id="architecture-root">
+        <title id="architecture-title">多智能体跨境电商系统架构</title>
+        <desc id="architecture-desc">架构图展示 React/Vite 客户端通过 REST 和 Socket.IO 进入 NestJS 应用，经意图解析、任务编排和三类领域智能体运行时，访问外部模型与数据服务。</desc>
+        <defs>
+      <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Noto+Serif:ital@0;1&amp;family=Noto+Sans+KR:wght@400;500;600&amp;family=Noto+Serif+KR:wght@400&amp;family=Noto+Sans+TC:wght@400;500;600&amp;family=Noto+Serif+TC:wght@400&amp;display=swap');
+      #architecture-root { --paper: #f5f5f5;
+      --paper-2: #ececec;
+      --ink: #2d3142;
+      --muted: #4f5d75;
+      --soft: #5a6580;
+      --rule: rgba(45,49,66,0.12);
+      --accent: #bf4520;
+      --accent-tint: rgba(191,69,32,0.08);
+      --link: #2e5aa8;
+      --sans: 'Geist', system-ui, sans-serif;
+      --serif: 'Instrument Serif', serif;
+      --mono: 'Geist Mono', ui-monospace, monospace; }
+      #architecture-root { font-family: var(--sans); color: var(--ink); }
+      #architecture-root .subtitle { color: var(--muted); font-size: 14px; line-height: 1.5; max-width: 760px; margin-bottom: 24px; }
+      #architecture-root .diagram-container { width: 100%; overflow-x: auto; }</style>
+          <pattern id="architecture-dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="#2d3142" fill-opacity="0.10"/>
+          </pattern>
+          <marker id="architecture-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="architecture-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="architecture-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect width="100%" height="100%" fill="url(#architecture-dots)" opacity="0.45"/>
+
+        <!-- Three flat zones, drawn before arrows and nodes. -->
+        <rect x="40" y="112" width="224" height="512" rx="8" fill="#4f5d75" stroke="#4f5d75" stroke-width="0.8" fill-opacity="0.03" stroke-opacity="0.18"/>
+        <rect x="288" y="112" width="660" height="512" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.12"/>
+        <rect x="968" y="112" width="272" height="512" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.12"/>
+
+        <rect x="112" y="116" width="80" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="152" y="128" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-weight="500" text-anchor="middle">客户端</text>
+        <rect x="520" y="116" width="196" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="618" y="128" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-weight="500" text-anchor="middle">NestJS 应用</text>
+        <rect x="1032" y="116" width="144" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="1104" y="128" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-weight="500" text-anchor="middle">依赖服务 · 数据</text>
+
+        <!-- Orthogonal connectors are drawn before all nodes. -->
+        <line x1="240" y1="204" x2="328" y2="204" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#architecture-arrow-link)"/>
+        <path d="M 240,228 H 280 Q 288,228 288,236 V 236 H 328" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#architecture-arrow)"/>
+        <path d="M 416,248 V 328" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#architecture-arrow)"/>
+        <path d="M 504,364 H 552 Q 560,364 560,356 V 312 H 584" fill="none" stroke="#bf4520" stroke-width="1.4" marker-end="url(#architecture-arrow-accent)"/>
+        <line x1="776" y1="304" x2="792" y2="304" stroke="#bf4520" stroke-width="1.4" marker-end="url(#architecture-arrow-accent)"/>
+        <path d="M 952,280 H 980 Q 988,280 988,272 V 192 H 1004" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#architecture-arrow-link)"/>
+        <line x1="952" y1="320" x2="1004" y2="320" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#architecture-arrow)"/>
+        <path d="M 952,336 H 980 Q 988,336 988,344 V 448 H 1004" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#architecture-arrow)"/>
+        <path d="M 952,352 H 972 Q 980,352 980,360 V 576 H 1004" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#architecture-arrow)"/>
+
+        <!-- Arrow labels sit on opaque masks beside the strokes. -->
+        <rect x="248" y="184" width="72" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="284" y="199" fill="#2e5aa8" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">请求 / 长连接</text>
+        <rect x="244" y="232" width="64" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="276" y="247" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">响应</text>
+        <rect x="424" y="268" width="48" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="448" y="283" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">解析</text>
+        <rect x="512" y="344" width="44" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="534" y="359" fill="#bf4520" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">路由</text>
+        <rect x="752" y="364" width="84" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="794" y="379" fill="#bf4520" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">智能体任务</text>
+        <rect x="920" y="228" width="56" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="948" y="243" fill="#2e5aa8" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">提示词</text>
+        <rect x="960" y="296" width="40" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="980" y="311" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">向量</text>
+        <rect x="912" y="396" width="64" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="944" y="411" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">向量查询</text>
+        <rect x="920" y="528" width="56" height="20" rx="2" fill="#f5f5f5"/>
+        <text x="948" y="543" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">缓存</text>
+
+        <!-- Node: React/Vite client -->
+        <rect x="64" y="176" width="176" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="64" y="176" width="176" height="72" rx="6" fill="#4f5d75" stroke="#5a6580" stroke-width="1" fill-opacity="0.10"/>
+        <rect x="72" y="184" width="40" height="16" rx="2" fill="none" stroke="#5a6580" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="92" y="196" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">输入</text>
+        <text x="152" y="214" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">前端网页</text>
+        <text x="152" y="234" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">React/Vite · 控制台 · 对话</text>
+
+        <!-- Node: REST + WebSocket gateway -->
+        <rect x="328" y="176" width="176" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="328" y="176" width="176" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="336" y="184" width="40" height="16" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="356" y="196" fill="#2d3142" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">接口</text>
+        <text x="416" y="214" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">接口接入层</text>
+        <text x="416" y="234" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">REST · Socket.IO · 控制器</text>
+
+        <!-- Node: intent parser -->
+        <rect x="328" y="328" width="176" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="328" y="328" width="176" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="336" y="336" width="40" height="16" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="356" y="348" fill="#2d3142" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">聊天</text>
+        <text x="416" y="366" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">意图解析器</text>
+        <text x="416" y="386" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">任务类型 + 提取输入</text>
+
+        <!-- Focal node: orchestrator -->
+        <rect x="584" y="268" width="192" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="584" y="268" width="192" height="72" rx="6" fill="#bf4520" stroke="#bf4520" stroke-width="1.2" fill-opacity="0.08"/>
+        <rect x="592" y="276" width="40" height="16" rx="2" fill="none" stroke="#bf4520" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="612" y="288" fill="#bf4520" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">核心</text>
+        <text x="680" y="306" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">任务编排器</text>
+        <text x="680" y="326" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">注册 · 路由 · 事件</text>
+
+        <!-- Node: three-domain Agent runtime -->
+        <rect x="792" y="248" width="160" height="112" rx="6" fill="#f5f5f5"/>
+        <rect x="792" y="248" width="160" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="800" y="256" width="48" height="16" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="824" y="268" fill="#2d3142" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">智能体</text>
+        <text x="872" y="286" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">智能体运行时</text>
+        <text x="872" y="306" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">ReAct 循环 · 最多 10 轮</text>
+        <text x="872" y="326" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">选品 · 订单 · 客服</text>
+        <text x="872" y="346" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">领域工具 · ITool</text>
+
+        <!-- Dependency and data nodes -->
+        <rect x="1004" y="156" width="200" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="1004" y="156" width="200" height="72" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <rect x="1012" y="164" width="40" height="16" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+        <text x="1032" y="176" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">模型</text>
+        <text x="1104" y="194" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">大模型服务</text>
+        <text x="1104" y="214" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">带工具调用</text>
+
+        <rect x="1004" y="284" width="200" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="1004" y="284" width="200" height="72" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <rect x="1012" y="292" width="40" height="16" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+        <text x="1032" y="304" fill="#5a6580" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">检索</text>
+        <text x="1104" y="322" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">向量嵌入服务</text>
+        <text x="1104" y="342" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">TEI / OpenAI · 1024 维</text>
+
+        <rect x="1004" y="412" width="200" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="1004" y="412" width="200" height="72" rx="6" fill="#2d3142" stroke="#4f5d75" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="1012" y="420" width="48" height="16" rx="2" fill="none" stroke="#4f5d75" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="1036" y="432" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">数据库</text>
+        <text x="1104" y="450" fill="#2d3142" font-size="12" font-weight="600" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">PostgreSQL + pgvector</text>
+        <text x="1104" y="470" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">实体 · 向量检索</text>
+
+        <rect x="1004" y="540" width="200" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="1004" y="540" width="200" height="72" rx="6" fill="#2d3142" stroke="#4f5d75" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="1012" y="548" width="40" height="16" rx="2" fill="none" stroke="#4f5d75" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="1032" y="560" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">缓存</text>
+        <text x="1104" y="578" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Redis</text>
+        <text x="1104" y="598" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">大模型响应缓存</text>
+
+        <!-- Legend strip -->
+        <line x1="40" y1="644" x2="1240" y2="644" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.12"/>
+        <text x="40" y="664" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-weight="500">图例</text>
+        <rect x="40" y="676" width="14" height="10" rx="2" fill="#bf4520" stroke="#bf4520" stroke-width="1" fill-opacity="0.08"/>
+        <text x="60" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">核心路由</text>
+        <rect x="188" y="676" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="208" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">应用组件</text>
+        <rect x="370" y="676" width="14" height="10" rx="2" fill="#2d3142" stroke="#4f5d75" stroke-width="1" fill-opacity="0.05"/>
+        <text x="390" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">存储 / 缓存</text>
+        <rect x="500" y="676" width="14" height="10" rx="2" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="520" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">外部服务</text>
+        <line x1="672" y1="682" x2="700" y2="682" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#architecture-arrow-link)"/>
+        <text x="708" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">请求 / 接口</text>
+        <line x1="824" y1="682" x2="852" y2="682" stroke="#bf4520" stroke-width="1.4" marker-end="url(#architecture-arrow-accent)"/>
+        <text x="860" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">主流程</text>
+        <line x1="974" y1="682" x2="1002" y2="682" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#architecture-arrow)"/>
+        <text x="1010" y="686" fill="#4f5d75" font-size="12" font-family="'Noto Sans SC', 'Microsoft YaHei', sans-serif">返回 / 异步</text>
+      </svg>
